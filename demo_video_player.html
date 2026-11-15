@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniCare — Official Video Demo with Voiceover Narration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-indicator { animation: pulseRing 2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans p-4 md:p-8 flex flex-col justify-between">
+  <div class="max-w-5xl mx-auto w-full space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-teal-500/20">
+          🎙️
+        </div>
+        <div>
+          <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+            OmniCare <span class="text-teal-400">Demo Video with Voiceover</span>
+          </h1>
+          <p class="text-xs text-slate-400">Synchronized MP4 Screencast + Clear Spoken Audio Voiceover & Interactive Captions</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-mono bg-teal-950/60 text-teal-300 border border-teal-800/80 px-3 py-1.5 rounded-xl">
+        <span class="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+        <span>Audio Track: Active (WAV + Web Audio)</span>
+      </div>
+    </div>
+
+    <!-- Video & Audio Synchronized Player Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl relative">
+      <!-- Player Status Bar -->
+      <div class="bg-slate-950/90 px-5 py-2.5 border-b border-slate-800 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+          <span class="ml-2 font-mono text-slate-300 font-semibold" id="status-label">Ready to Play — Click Start Video & Voice</span>
+        </div>
+        <div class="flex items-center gap-3 font-mono text-slate-400">
+          <span id="time-display" class="text-teal-400 font-bold">00:00 / 00:35</span>
+          <span class="px-2 py-0.5 bg-slate-800 text-[10px] rounded text-slate-300">AUDIO SYNCED</span>
+        </div>
+      </div>
+
+      <!-- Main Video Canvas / Video Tag -->
+      <div class="relative bg-black aspect-video flex items-center justify-center overflow-hidden">
+        <video
+          id="main-video"
+          src="demo_recording.mp4"
+          class="w-full h-full object-contain"
+          playsinline
+        ></video>
+
+        <!-- Big Play Overlay when Paused -->
+        <div id="play-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-4 cursor-pointer">
+          <button id="big-play-btn" class="w-20 h-20 rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 flex items-center justify-center text-3xl font-black shadow-2xl shadow-teal-500/50 transition-all hover:scale-105 active:scale-95">
+            ▶
+          </button>
+          <div class="text-center space-y-1">
+            <p class="font-black text-lg text-white">Play Video with Voiceover Narration</p>
+            <p class="text-xs text-slate-300">Plays video and spoken explanation simultaneously</p>
+          </div>
+        </div>
+
+        <!-- Hidden Audio Element for Spoken Voiceover -->
+        <audio id="main-audio" src="demo_voiceover.wav" preload="auto"></audio>
+      </div>
+
+      <!-- Live Voice Subtitles Banner -->
+      <div class="bg-slate-950 px-6 py-3.5 border-t border-slate-800 flex items-start gap-3">
+        <span class="text-lg">🗣️</span>
+        <div class="flex-1">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-teal-400 font-bold">Live Spoken Subtitles:</span>
+          <p id="caption-text" class="text-sm font-medium text-slate-200 mt-0.5">
+            "Welcome to OmniCare, the smart interconnected healthcare and medication management platform designed for elderly independence."
+          </p>
+        </div>
+      </div>
+
+      <!-- Player Controls Bar -->
+      <div class="bg-slate-900/90 px-6 py-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button id="control-play-btn" class="px-5 py-2.5 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-teal-500/20">
+            <span>▶ Play</span>
+          </button>
+          <button id="control-restart-btn" class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-all">
+            <span>↺ Restart</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <!-- Voice Volume / Mute -->
+          <button id="toggle-voice-btn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">
+            <span id="voice-icon">🔊</span>
+            <span id="voice-label">Voiceover: ON</span>
+          </button>
+
+          <!-- Alternative Speech Synthesis Fallback -->
+          <button id="browser-tts-btn" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-teal-400 border border-teal-800/50">
+            🎙️ Speech API Mode
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Chapters & Features Covered -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+      <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+        <span class="text-teal-400 font-bold block mb-1">00:00 - 00:08</span>
+        <p class="font-bold text-white">Multi-Role Passcodes</p>
+        <p class="text-slate-400 text-[11px]">Senior 4-digit PIN vs Caregiver 6-digit PIN with PBKDF2 hashing.</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+        <span class="text-teal-400 font-bold block mb-1">00:08 - 00:16</span>
+        <p class="font-bold text-white">SVG Pill Visualizer</p>
+        <p class="text-slate-400 text-[11px]">Dynamic 7-shape, 11-color vector pill identifier for polypharmacy.</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+        <span class="text-teal-400 font-bold block mb-1">00:16 - 00:25</span>
+        <p class="font-bold text-white">Clinical DDI Engine</p>
+        <p class="text-slate-400 text-[11px]">Blocks Warfarin + Aspirin & Potassium + Lisinopril hazards.</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+        <span class="text-teal-400 font-bold block mb-1">00:25 - 00:35</span>
+        <p class="font-bold text-white">Escalation & FHIR R4</p>
+        <p class="text-slate-400 text-[11px]">3-tier escalation cascade and HL7 / FHIR clinical bundle export.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('main-video');
+    const audio = document.getElementById('main-audio');
+    const playOverlay = document.getElementById('play-overlay');
+    const controlPlayBtn = document.getElementById('control-play-btn');
+    const controlRestartBtn = document.getElementById('control-restart-btn');
+    const toggleVoiceBtn = document.getElementById('toggle-voice-btn');
+    const voiceIcon = document.getElementById('voice-icon');
+    const voiceLabel = document.getElementById('voice-label');
+    const statusLabel = document.getElementById('status-label');
+    const timeDisplay = document.getElementById('time-display');
+    const captionText = document.getElementById('caption-text');
+    const browserTtsBtn = document.getElementById('browser-tts-btn');
+
+    let isVoiceMuted = false;
+
+    const captions = [
+      { time: 0, text: "Welcome to OmniCare, the smart interconnected healthcare and medication management platform designed for elderly independence." },
+      { time: 6, text: "OmniCare provides secure multi-role access for seniors, caretakers, and families using cryptographic PBKDF2 salted passcodes." },
+      { time: 13, text: "Our interactive visual pill identifier renders custom 3D and SVG pill shapes, colors, and imprints to eliminate medication errors." },
+      { time: 20, text: "The real-time geriatric drug-drug interaction engine actively blocks dangerous combinations like Warfarin and Aspirin, protecting elderly patients." },
+      { time: 27, text: "Automated three-tier escalation cascades ensure that missed doses alert caretakers within 30 minutes and family within 45 minutes." },
+      { time: 33, text: "With WCAG 2.1 AAA accessibility, tremor-guarded emergency SOS, and HL7 FHIR R4 clinical export, OmniCare sets the gold standard." }
+    ];
+
+    function updateCaptions(currentTime) {
+      let active = captions[0].text;
+      for (const c of captions) {
+        if (currentTime >= c.time) {
+          active = c.text;
+        }
+      }
+      captionText.textContent = '"' + active + '"';
+    }
+
+    function togglePlay() {
+      if (video.paused) {
+        video.play();
+        if (!isVoiceMuted) {
+          audio.currentTime = video.currentTime;
+          audio.play().catch(e => console.log('Audio autoplay prevented:', e));
+        }
+        playOverlay.classList.add('hidden');
+        controlPlayBtn.innerHTML = '<span>⏸ Pause</span>';
+        statusLabel.textContent = 'Playing Demo Video with Synchronized Voiceover';
+      } else {
+        video.pause();
+        audio.pause();
+        playOverlay.classList.remove('hidden');
+        controlPlayBtn.innerHTML = '<span>▶ Play</span>';
+        statusLabel.textContent = 'Paused';
+      }
+    }
+
+    playOverlay.addEventListener('click', togglePlay);
+    controlPlayBtn.addEventListener('click', togglePlay);
+
+    controlRestartBtn.addEventListener('click', () => {
+      video.currentTime = 0;
+      audio.currentTime = 0;
+      video.play();
+      if (!isVoiceMuted) {
+        audio.play().catch(e => console.log(e));
+      }
+      playOverlay.classList.add('hidden');
+      controlPlayBtn.innerHTML = '<span>⏸ Pause</span>';
+      statusLabel.textContent = 'Restarted — Playing Demo Video with Synchronized Voiceover';
+    });
+
+    video.addEventListener('timeupdate', () => {
+      const cur = Math.floor(video.currentTime);
+      const dur = Math.floor(video.duration) || 35;
+      const curStr = (cur < 10 ? '0' : '') + cur;
+      const durStr = (dur < 10 ? '0' : '') + dur;
+      timeDisplay.textContent = `00:${curStr} / 00:${durStr}`;
+
+      updateCaptions(video.currentTime);
+
+      // Keep audio synced within 0.3s
+      if (!isVoiceMuted && Math.abs(audio.currentTime - video.currentTime) > 0.3) {
+        audio.currentTime = video.currentTime;
+      }
+    });
+
+    video.addEventListener('ended', () => {
+      audio.pause();
+      playOverlay.classList.remove('hidden');
+      controlPlayBtn.innerHTML = '<span>▶ Replay</span>';
+      statusLabel.textContent = 'Walkthrough Completed';
+    });
+
+    toggleVoiceBtn.addEventListener('click', () => {
+      isVoiceMuted = !isVoiceMuted;
+      if (isVoiceMuted) {
+        audio.pause();
+        voiceIcon.textContent = '🔇';
+        voiceLabel.textContent = 'Voiceover: MUTED';
+      } else {
+        voiceIcon.textContent = '🔊';
+        voiceLabel.textContent = 'Voiceover: ON';
+        if (!video.paused) {
+          audio.currentTime = video.currentTime;
+          audio.play().catch(e => console.log(e));
+        }
+      }
+    });
+
+    browserTtsBtn.addEventListener('click', () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(captionText.textContent);
+        u.rate = 0.85;
+        window.speechSynthesis.speak(u);
+      }
+    });
+  </script>
+</body>
+</html>

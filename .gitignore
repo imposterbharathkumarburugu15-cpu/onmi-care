@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.zip
+.agent
+.gemini
+.vscode
+.idea
+*.log
